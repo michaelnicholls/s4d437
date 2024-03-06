@@ -1,0 +1,31 @@
+projection;
+use draft;
+
+define behavior for zmn_C_TRAVEL alias travel
+use etag
+{
+  use create;
+  use update;
+  //  use delete;
+
+  use association _TravelItem { create; with draft; }
+
+  use action issue_message;
+
+  use action set_to_cancelled;
+
+  use action Edit;
+  use action Activate;
+  use action Discard;
+  use action Resume;
+
+  use action Prepare;
+}
+
+define behavior for zmn_C_TRAVELITEM alias item
+{
+  use update;
+  use delete;
+
+  use association _Travel { with draft; }
+}

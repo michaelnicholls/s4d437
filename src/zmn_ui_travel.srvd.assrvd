@@ -1,0 +1,5 @@
+@EndUserText.label: 'travel'
+define service Zmn_ui_travel {
+  expose zmn_C_TRAVEL;
+  expose zmn_C_TRAVELITEM;
+}
