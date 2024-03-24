@@ -709,6 +709,11 @@ CLASS lhc_item DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR item~validateflightdate.
     METHODS validateflight FOR VALIDATE ON SAVE
       IMPORTING keys FOR item~validateflight.
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR item RESULT result.
+
+    METHODS firstflight FOR MODIFY
+      IMPORTING keys FOR ACTION item~firstflight.
 
 ENDCLASS.
 
@@ -1126,6 +1131,79 @@ CLASS lhc_item IMPLEMENTATION.
       ENDIF.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  METHOD firstflight.
+
+      READ ENTITY IN LOCAL MODE ZMN_i_travelitem
+         FIELDS ( Itguid trguid carrierid connectionid flightdate )
+         WITH CORRESPONDING #( keys )
+         RESULT DATA(lt_items).
+   LOOP AT lt_items ASSIGNING FIELD-SYMBOL(<ls_item>).
+      READ ENTITY IN LOCAL MODE zmn_i_travel
+           FIELDS ( StartDate EndDate ) WITH VALUE #( ( %tky-trguid = <ls_item>-Trguid ) )
+           RESULT DATA(travel_record).
+      DATA(startdate) = travel_record[ 1 ]-startdate.
+      data(enddate) = travel_record[ 1 ]-EndDate.
+      if <ls_item>-CarrierID IS INITIAL or <ls_item>-ConnectionID IS  INITIAL.
+         DATA lo_msg TYPE REF TO zcm_mn_travel.
+
+    CREATE OBJECT lo_msg
+      EXPORTING
+        textid   = zcm_mn_travel=>no_carrid_connid
+        severity = zcm_mn_travel=>if_abap_behv_message~severity-warning.
+
+    APPEND lo_msg TO reported-%other.
+
+        else.
+         SELECT FROM sflight
+            FIELDS fldate
+
+            WHERE carrid  = @<ls_item>-CarrierID AND connid = @<ls_item>-ConnectionID
+              AND fldate >= @startdate
+              and fldate <= @enddate
+            ORDER BY fldate
+
+            INTO TABLE @DATA(result)
+            UP TO 1 ROWS.
+    if sy-subrc = 0.
+          MODIFY ENTITY IN LOCAL MODE zmn_I_TRAVELITEM
+                 UPDATE FIELDS (  FlightDate )
+                 WITH VALUE #( ( %tky-%is_draft = if_abap_behv=>mk-on
+                                 %tky-Itguid    = <ls_item>-Itguid
+                                 FlightDate     = result[ 1 ]-fldate ) ).
+        CREATE OBJECT lo_msg
+      EXPORTING
+        textid   = zcm_mn_travel=>flight_found
+        carrid = <ls_item>-CarrierID
+        connid = <ls_item>-ConnectionID
+        startdate = startdate
+        firstdate = result[ 1 ]-fldate
+        severity = zcm_mn_travel=>if_abap_behv_message~severity-information.
+
+    APPEND lo_msg TO reported-%other.
+
+        else.
+    CREATE OBJECT lo_msg
+      EXPORTING
+        textid   = zcm_mn_travel=>no_flights
+        carrid = <ls_item>-CarrierID
+        connid = <ls_item>-ConnectionID
+        startdate = startdate
+        enddate = enddate
+        severity = zcm_mn_travel=>if_abap_behv_message~severity-warning.
+
+    APPEND lo_msg TO reported-%other.
+           " nothing found
+        endif.
+
+      endif.
+
+      endloop.
 
   ENDMETHOD.
 

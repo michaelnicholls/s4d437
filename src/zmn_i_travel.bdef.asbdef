@@ -90,7 +90,7 @@ persistent table zmn_tritem
 
   update;
   delete;
-
+  action firstflight;
   association _Travel { with draft; }
 
   determination determineSemanticKey on modify { create; }

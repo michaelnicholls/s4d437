@@ -26,6 +26,6 @@ define behavior for zmn_C_TRAVELITEM alias item
 {
   use update;
   use delete;
-
+  use action firstflight;
   use association _Travel { with draft; }
 }

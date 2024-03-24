@@ -19,9 +19,12 @@ annotate view zmn_C_TRAVELITEM
 
   @UI.hidden: true
   Itguid;
-  @UI: {
-          identification: [ { position: 10, importance: #HIGH } ]
-        }
+      @UI: {     identification: [ { position: 10, importance: #HIGH },          
+                         { type:        #FOR_ACTION,                         
+                             dataAction: 'firstflight',                      
+                                    label:      'First flight' }    ] }
+
+
   AgencyID;
   @UI: {
           identification: [ { position: 20, importance: #HIGH } ]
@@ -36,33 +39,34 @@ annotate view zmn_C_TRAVELITEM
   Trguid;
 
   @UI: {
+           lineItem:       [ { position: 40, importance: #HIGH } ],    
           identification: [ { position: 40, importance: #HIGH } ]
         }
         
   CarrierID;
   @UI: {
-          lineItem:       [ { position: 40, importance: #HIGH } ],
+          lineItem:       [ { position: 50, importance: #HIGH } ],
           identification: [ { position: 50, importance: #HIGH } ]
         }
   ConnectionID;
   @UI: {
-          lineItem:       [ { position: 50, importance: #HIGH } ],
+          lineItem:       [ { position: 60, importance: #HIGH } ],
           identification: [ { position: 60, importance: #HIGH } ]
         }
   FlightDate;
   @UI: {
-          lineItem:       [ { position: 60, importance: #HIGH } ],
+          lineItem:       [ { position: 70, importance: #HIGH } ],
           identification: [ { position: 70, importance: #HIGH } ]
         }
   BookingID;
   @UI: {
-          lineItem:       [ { position: 70, importance: #HIGH } ],
+          lineItem:       [ { position: 80, importance: #HIGH } ],
           identification: [ { position: 80, importance: #HIGH } ]
         }
   FlightClass;
   
   @UI: {
-          identification: [ { position: 80, importance: #HIGH } ]
+          identification: [ { position: 90, importance: #HIGH } ]
        }
   PassengerName;
   
@@ -77,5 +81,5 @@ annotate view zmn_C_TRAVELITEM
   ChangedBy;
   @UI.hidden: true
   LocalChangedAt;
-
+  
 }
