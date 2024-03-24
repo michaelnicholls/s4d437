@@ -1147,6 +1147,11 @@ CLASS lhc_item IMPLEMENTATION.
       READ ENTITY IN LOCAL MODE zmn_i_travel
            FIELDS ( StartDate EndDate ) WITH VALUE #( ( %tky-trguid = <ls_item>-Trguid ) )
            RESULT DATA(travel_record).
+      if lines( travel_record ) = 0.
+       READ ENTITY IN LOCAL MODE zmn_i_travel
+           FIELDS ( StartDate EndDate ) WITH VALUE #( ( %tky-trguid = <ls_item>-Trguid %tky-%is_draft = if_abap_behv=>mk-on ) )
+           RESULT travel_record.
+      ENDIF.
       DATA(startdate) = travel_record[ 1 ]-startdate.
       data(enddate) = travel_record[ 1 ]-EndDate.
       if <ls_item>-CarrierID IS INITIAL or <ls_item>-ConnectionID IS  INITIAL.
