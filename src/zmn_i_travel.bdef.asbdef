@@ -1,4 +1,5 @@
 managed implementation in class zbp_mn_i_travel unique;
+strict;
 with draft;
 
 define behavior for zmn_I_TRAVEL alias travel
@@ -90,7 +91,9 @@ persistent table zmn_tritem
 
   update;
   delete;
-  action firstflight;
+//  action xxxx result [1] $self;
+  action  firstflight  result [0..1] $self;
+
   association _Travel { with draft; }
 
   determination determineSemanticKey on modify { create; }

@@ -713,7 +713,8 @@ CLASS lhc_item DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys REQUEST requested_authorizations FOR item RESULT result.
 
     METHODS firstflight FOR MODIFY
-      IMPORTING keys FOR ACTION item~firstflight.
+      IMPORTING keys FOR ACTION item~firstflight RESULT result.
+
 
 ENDCLASS.
 
@@ -1144,7 +1145,14 @@ CLASS lhc_item IMPLEMENTATION.
          WITH CORRESPONDING #( keys )
          RESULT DATA(lt_items).
    LOOP AT lt_items ASSIGNING FIELD-SYMBOL(<ls_item>).
-      READ ENTITY IN LOCAL MODE zmn_i_travel
+    append INITIAL LINE TO result  ASSIGNING FIELD-SYMBOL(<fs_result>).
+    <fs_result>-%param-FlightDate = sy-datum.
+    <fs_result>-Itguid = <ls_item>-Itguid.
+     <fs_result>-%param-trguid = <ls_item>-trguid.
+      <fs_result>-%param-%is_draft = <ls_item>-%is_draft.
+      <fs_result>-%param-Itguid = <ls_item>-Itguid.
+   <fs_result>-%tky = <ls_item>-%tky.
+          READ ENTITY IN LOCAL MODE zmn_i_travel
            FIELDS ( StartDate EndDate ) WITH VALUE #( ( %tky-trguid = <ls_item>-Trguid ) )
            RESULT DATA(travel_record).
       if lines( travel_record ) = 0.
@@ -1173,24 +1181,25 @@ CLASS lhc_item IMPLEMENTATION.
               and fldate <= @enddate
             ORDER BY fldate
 
-            INTO TABLE @DATA(result)
+            INTO TABLE @DATA(sflight_result)
             UP TO 1 ROWS.
     if sy-subrc = 0.
           MODIFY ENTITY IN LOCAL MODE zmn_I_TRAVELITEM
                  UPDATE FIELDS (  FlightDate )
                  WITH VALUE #( ( %tky-%is_draft = if_abap_behv=>mk-on
                                  %tky-Itguid    = <ls_item>-Itguid
-                                 FlightDate     = result[ 1 ]-fldate ) ).
+                                 FlightDate     = sflight_result[ 1 ]-fldate ) ).
         CREATE OBJECT lo_msg
       EXPORTING
         textid   = zcm_mn_travel=>flight_found
         carrid = <ls_item>-CarrierID
         connid = <ls_item>-ConnectionID
         startdate = startdate
-        firstdate = result[ 1 ]-fldate
+        firstdate = sflight_result[ 1 ]-fldate
         severity = zcm_mn_travel=>if_abap_behv_message~severity-information.
 
     APPEND lo_msg TO reported-%other.
+
 
         else.
     CREATE OBJECT lo_msg
@@ -1210,6 +1219,10 @@ CLASS lhc_item IMPLEMENTATION.
 
       endloop.
 
+
   ENDMETHOD.
+
+
+
 
 ENDCLASS.
