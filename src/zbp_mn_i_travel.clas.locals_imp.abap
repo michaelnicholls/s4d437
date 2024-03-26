@@ -1184,7 +1184,8 @@ CLASS lhc_item IMPLEMENTATION.
             INTO TABLE @DATA(sflight_result)
             UP TO 1 ROWS.
     if sy-subrc = 0.
-          MODIFY ENTITY IN LOCAL MODE zmn_I_TRAVELITEM
+      <fs_result>-%param-FlightDate = sflight_result[ 1 ]-fldate.
+         MODIFY ENTITY IN LOCAL MODE zmn_I_TRAVELITEM
                  UPDATE FIELDS (  FlightDate )
                  WITH VALUE #( ( %tky-%is_draft = if_abap_behv=>mk-on
                                  %tky-Itguid    = <ls_item>-Itguid
